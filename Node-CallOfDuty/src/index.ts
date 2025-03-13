@@ -45,7 +45,7 @@ let basePostHeaders: CustomHeaders = {
   "user-agent": userAgent,
 };
 
-let baseUrl: string = "https://my.callofduty.com";
+let baseUrl: string = "https://profile.callofduty.com";
 let apiPath: string = "/api/papi-client";
 let baseTelescopeUrl: string = "https://telescope.callofduty.com";
 let apiTelescopePath: string = "/api/ts-api";

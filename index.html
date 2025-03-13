@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call of Duty Stats Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #f7c800;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: #2d2d2d;
+            color: #ffffff;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #f7c800;
+            color: #000000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #e0b800;
+        }
+        #results {
+            margin-top: 20px;
+            background-color: #2d2d2d;
+            border-radius: 4px;
+            padding: 15px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            display: none;
+        }
+        .error {
+            color: #ff6b6b;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Call of Duty Stats Tracker</h1>
+        
+        <div class="form-group">
+            <label for="username">Username (e.g., Ahrimdon or Ahrimdon#1234567):</label>
+            <input type="text" id="username" placeholder="Enter your Call of Duty username">
+        </div>
+        
+        <div class="form-group">
+            <label for="ssoToken">SSO Token:</label>
+            <input type="text" id="ssoToken" placeholder="Enter your SSO Token">
+        </div>
+        
+        <div class="form-group">
+            <label for="platform">Platform:</label>
+            <select id="platform">
+                <option value="acti">Activision</option>
+                <option value="battle">Battle.net</option>
+                <option value="psn">PlayStation</option>
+                <option value="xbl">Xbox Live</option>
+                <option value="steam">Steam</option>
+                <option value="uno">Uno (numerical ID)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="game">Game:</label>
+            <select id="game">
+                <option value="mw">Modern Warfare / Warzone</option>
+                <option value="mw2">Modern Warfare 2</option>
+                <option value="wz2">Warzone 2</option>
+                <option value="mw3">Modern Warfare 3</option>
+                <option value="cw">Cold War</option>
+                <option value="vg">Vanguard</option>
+                <option value="wzm">Warzone Mobile</option>
+            </select>
+        </div>
+        
+        <button id="fetchStats">Fetch Stats</button>
+        
+        <div id="error" class="error"></div>
+        <div id="loading" class="loading">Loading stats...</div>
+        <pre id="results"></pre>
+    </div>
+
+    <script>
+        document.getElementById('fetchStats').addEventListener('click', async () => {
+            const username = document.getElementById('username').value.trim();
+            const ssoToken = document.getElementById('ssoToken').value.trim();
+            const platform = document.getElementById('platform').value;
+            const game = document.getElementById('game').value;
+            const errorElement = document.getElementById('error');
+            const loadingElement = document.getElementById('loading');
+            const resultsElement = document.getElementById('results');
+            
+            // Reset display
+            errorElement.textContent = '';
+            resultsElement.style.display = 'none';
+            loadingElement.style.display = 'block';
+            
+            if (!username || !ssoToken) {
+                errorElement.textContent = 'Please enter both username and SSO Token';
+                loadingElement.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/stats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        ssoToken,
+                        platform,
+                        game
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    errorElement.textContent = data.error;
+                } else {
+                    resultsElement.textContent = JSON.stringify(data, null, 2);
+                    resultsElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = 'An error occurred while fetching data. Please try again.';
+                console.error('Error:', error);
+            } finally {
+                loadingElement.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

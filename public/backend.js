@@ -23,7 +23,7 @@ function initTabSwitching() {
       document
         .querySelectorAll(".tab-content")
         .forEach((c) => c.classList.remove("active"));
-  
+
       tab.classList.add("active");
       const tabId = tab.getAttribute("data-tab");
       document.getElementById(`${tabId}-tab`).classList.add("active");
@@ -40,7 +40,7 @@ function setupProcessingOptions() {
       triggerActiveTabButton();
     }
   });
-  
+
   document.getElementById("replaceKeysOption").addEventListener("change", function() {
     if (currentData) {
       // Re-fetch with new options
@@ -60,7 +60,7 @@ function setupFormatSelector() {
   });
 }
 
-// Fetch stats (original functionality enhanced)
+// Fetch stats
 document.getElementById("fetchStats").addEventListener("click", async () => {
   const username = document.getElementById("username").value.trim();
   const ssoToken = document.getElementById("ssoToken").value.trim();
@@ -88,7 +88,7 @@ document.getElementById("fetchMatches").addEventListener("click", async () => {
   const ssoToken = document.getElementById("ssoToken").value.trim();
   const platform = document.getElementById("matchPlatform").value;
   const game = document.getElementById("matchGame").value;
-  
+
   const sanitize = document.getElementById("sanitizeOption").checked;
   const replaceKeys = document.getElementById("replaceKeysOption").checked;
 
@@ -108,7 +108,7 @@ document.getElementById("fetchMatchInfo").addEventListener("click", async () => 
   const ssoToken = document.getElementById("ssoToken").value.trim();
   const platform = document.getElementById("matchPlatform").value;
   const game = document.getElementById("matchGame").value;
-  
+
   const sanitize = document.getElementById("sanitizeOption").checked;
   const replaceKeys = document.getElementById("replaceKeysOption").checked;
 
@@ -133,7 +133,7 @@ document.getElementById("fetchUserInfo").addEventListener("click", async () => {
   const ssoToken = document.getElementById("ssoToken").value.trim();
   const platform = document.getElementById("userPlatform").value;
   const userCall = document.getElementById("userCall").value;
-  
+
   const sanitize = document.getElementById("sanitizeOption").checked;
   const replaceKeys = document.getElementById("replaceKeysOption").checked;
 
@@ -163,7 +163,7 @@ document.getElementById("fuzzySearch").addEventListener("click", async () => {
   const username = document.getElementById("searchUsername").value.trim();
   const ssoToken = document.getElementById("ssoToken").value.trim();
   const platform = document.getElementById("searchPlatform").value;
-  
+
   const sanitize = document.getElementById("sanitizeOption").checked;
   const replaceKeys = document.getElementById("replaceKeysOption").checked;
 
@@ -181,16 +181,16 @@ document.getElementById("fuzzySearch").addEventListener("click", async () => {
   });
 });
 
-// Improved YAML conversion function
+// YAML conversion function
 function jsonToYAML(json) {
   const INDENT_SIZE = 2;
-  
+
   function formatValue(value, indentLevel = 0) {
     const indent = ' '.repeat(indentLevel);
-    
+
     if (value === null) return 'null';
     if (value === undefined) return '';
-    
+
     if (typeof value === 'string') {
       // Check if string needs quotes (contains special chars)
       if (/[:{}[\],&*#?|\-<>=!%@`]/.test(value) || value === '' || !isNaN(value)) {
@@ -198,11 +198,11 @@ function jsonToYAML(json) {
       }
       return value;
     }
-    
+
     if (typeof value === 'number' || typeof value === 'boolean') {
       return value.toString();
     }
-    
+
     if (Array.isArray(value)) {
       if (value.length === 0) return '[]';
       let result = '';
@@ -211,7 +211,7 @@ function jsonToYAML(json) {
       }
       return result;
     }
-    
+
     if (typeof value === 'object') {
       if (Object.keys(value).length === 0) return '{}';
       let result = '';
@@ -226,10 +226,10 @@ function jsonToYAML(json) {
       }
       return result;
     }
-    
+
     return String(value);
   }
-  
+
   return formatValue(json, 0).substring(1); // Remove first newline
 }
 
@@ -238,7 +238,7 @@ async function fetchData(endpoint, requestData) {
   const errorElement = document.getElementById("error");
   const loadingElement = document.getElementById("loading");
   const resultsElement = document.getElementById("results");
-  
+
   // Get all tutorial elements
   const tutorialElements = document.querySelectorAll(".tutorial");
 
@@ -246,7 +246,7 @@ async function fetchData(endpoint, requestData) {
   errorElement.textContent = "";
   resultsElement.style.display = "none";
   loadingElement.style.display = "block";
-  
+
   // Mark tutorial as dismissed when any button is clicked
   if (!tutorialDismissed) {
     tutorialDismissed = true;
@@ -296,16 +296,16 @@ async function fetchData(endpoint, requestData) {
 function displayResults(data) {
   const resultsElement = document.getElementById("results");
   const downloadContainer = document.getElementById("download-container");
-  
+
   // Apply time conversion if enabled
   const convertTime = document.getElementById('convertTimeOption').checked;
   let displayData = data;
-  
+
   if (convertTime) {
     const timezone = document.getElementById('timezoneSelect').value;
     displayData = processTimestamps(JSON.parse(JSON.stringify(data)), timezone);
   }
-  
+
   // Format the data
   let formattedData = '';
   if (outputFormat === 'yaml') {
@@ -315,7 +315,7 @@ function displayResults(data) {
     formattedData = JSON.stringify(displayData, null, 2);
     document.getElementById("downloadJson").textContent = "Download JSON Data";
   }
-  
+
   resultsElement.textContent = formattedData;
   resultsElement.style.display = "block";
   downloadContainer.style.display = "block";
@@ -329,11 +329,11 @@ function displayError(message) {
 
   errorElement.textContent = message;
   loadingElement.style.display = "none";
-  
+
   // Clear previous results to ensure they can be redrawn
   resultsElement.style.display = "none";
   resultsElement.textContent = "";
-  
+
   // Keep tutorial hidden if previously dismissed
   if (tutorialDismissed) {
     document.querySelectorAll(".tutorial").forEach(element => {
@@ -396,14 +396,14 @@ function triggerActiveTabButton() {
 // Function to convert epoch time to human-readable format
 function formatEpochTime(epoch, timezone) {
   if (!epoch) return epoch;
-  
+
   // Check if epoch is in milliseconds (13 digits) or seconds (10 digits)
   const epochNumber = parseInt(epoch);
   if (isNaN(epochNumber)) return epoch;
-  
+
   // Convert to milliseconds if needed
   const epochMs = epochNumber.toString().length <= 10 ? epochNumber * 1000 : epochNumber;
-  
+
   // Parse the timezone offset
   let offset = 0;
   if (timezone !== 'UTC') {
@@ -415,10 +415,10 @@ function formatEpochTime(epoch, timezone) {
       offset = sign * (hours * 60 + minutes) * 60 * 1000;
     }
   }
-  
+
   // Create a date object and adjust for timezone
   const date = new Date(epochMs + offset);
-  
+
   // Format the date
   return date.toUTCString().replace('GMT', timezone);
 }
@@ -426,11 +426,11 @@ function formatEpochTime(epoch, timezone) {
 // Function to recursively process timestamps in the data
 function processTimestamps(data, timezone, keysToConvert = ['utcStartSeconds', 'utcEndSeconds', 'timestamp', 'startTime', 'endTime']) {
   if (!data || typeof data !== 'object') return data;
-  
+
   if (Array.isArray(data)) {
     return data.map(item => processTimestamps(item, timezone, keysToConvert));
   }
-  
+
   const result = {};
   for (const [key, value] of Object.entries(data)) {
     if (keysToConvert.includes(key) && typeof value === 'number') {
@@ -441,23 +441,23 @@ function processTimestamps(data, timezone, keysToConvert = ['utcStartSeconds', '
       result[key] = value;
     }
   }
-  
+
   return result;
 }
 
-// Add this to your document.addEventListener("DOMContentLoaded", function() {...}) block
+// Time options
 function setupTimeOptions() {
   const convertTimeCheckbox = document.getElementById('convertTimeOption');
   const timezoneSelect = document.getElementById('timezoneSelect');
-  
+
   convertTimeCheckbox.addEventListener('change', function() {
     timezoneSelect.disabled = !this.checked;
-    
+
     if (currentData) {
       displayResults(currentData); // Refresh the display
     }
   });
-  
+
   timezoneSelect.addEventListener('change', function() {
     if (currentData) {
       displayResults(currentData); // Refresh the display
@@ -469,34 +469,34 @@ function setupTimeOptions() {
 function setupDownloadButton() {
   const downloadBtn = document.getElementById("downloadJson");
   if (!downloadBtn) return;
-  
+
   downloadBtn.addEventListener("click", function() {
     const resultsElement = document.getElementById("results");
     const jsonData = resultsElement.textContent;
-    
+
     if (!jsonData) {
       alert("No data to download");
       return;
     }
-    
+
     // Create a Blob with the data
     const contentType = outputFormat === 'yaml' ? 'text/yaml' : 'application/json';
     const blob = new Blob([jsonData], { type: contentType });
-    
+
     // Create a temporary link element
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    
+
     // Generate a filename with timestamp
     const date = new Date();
     const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}-${String(date.getMinutes()).padStart(2, '0')}`;
     const extension = outputFormat === 'yaml' ? 'yaml' : 'json';
     a.download = `cod_stats_${timestamp}.${extension}`;
-    
+
     // Trigger download
     document.body.appendChild(a);
     a.click();
-    
+
     // Clean up
     document.body.removeChild(a);
   });
@@ -504,14 +504,14 @@ function setupDownloadButton() {
 // Function to synchronize username across tabs
 function syncUsernames() {
   const mainUsername = document.getElementById("username").value.trim();
-  
+
   // Only sync if there's a value
   if (mainUsername) {
     document.getElementById("matchUsername").value = mainUsername;
     document.getElementById("userUsername").value = mainUsername;
     document.getElementById("searchUsername").value = mainUsername;
   }
-  
+
   // Also sync platform across tabs when it changes
   const mainPlatform = document.getElementById("platform").value;
   document.getElementById("matchPlatform").value = mainPlatform;
@@ -519,7 +519,7 @@ function syncUsernames() {
   document.getElementById("searchPlatform").value = mainPlatform;
 }
 
-// Add these event listeners to the DOMContentLoaded function
+// Sync listeners for persistent usernames
 function addSyncListeners() {
   // Add change listeners for username sync
   document.getElementById("username").addEventListener("change", syncUsernames);
@@ -535,7 +535,7 @@ function addSyncListeners() {
     document.getElementById("username").value = this.value;
     syncUsernames();
   });
-  
+
   // Add change listeners for platform sync
   document.getElementById("platform").addEventListener("change", syncUsernames);
 }

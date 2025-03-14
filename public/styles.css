@@ -6,24 +6,29 @@ body {
   margin: 0 auto;
   padding: 20px;
 }
+
 .container {
   background-color: #1e1e1e;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
+
 h1 {
   text-align: center;
   color: #f7c800;
 }
+
 .form-group {
   margin-bottom: 15px;
 }
+
 label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
 }
+
 input,
 select {
   width: 100%;
@@ -34,6 +39,7 @@ select {
   color: #ffffff;
   box-sizing: border-box;
 }
+
 button {
   background-color: #f7c800;
   color: #000000;
@@ -46,9 +52,11 @@ button {
   width: 100%;
   margin-top: 10px;
 }
+
 button:hover {
   background-color: #e0b800;
 }
+
 #results {
   margin-top: 20px;
   background-color: #2d2d2d;
@@ -58,29 +66,35 @@ button:hover {
   overflow-x: auto;
   display: none;
 }
+
 .error {
   color: #ff6b6b;
   margin-top: 10px;
   text-align: center;
 }
+
 .loading {
   text-align: center;
   margin-top: 20px;
   display: none;
 }
+
 .api-section {
   border-top: 1px solid #333;
   margin-top: 20px;
   padding-top: 15px;
 }
+
 .conditional-field {
   display: none;
 }
+
 .tabs {
   display: flex;
   margin-bottom: 20px;
   border-bottom: 1px solid #333;
 }
+
 .tab {
   padding: 10px 15px;
   cursor: pointer;
@@ -88,28 +102,35 @@ button:hover {
   border-radius: 4px 4px 0 0;
   margin-right: 5px;
 }
+
 .tab.active {
   background-color: #f7c800;
   color: #000000;
   font-weight: bold;
 }
+
 .tab-content {
   display: none;
 }
+
 .tab-content.active {
   display: block;
 }
+
 .small-text {
   font-size: 0.8em;
   color: #aaa;
 }
+
 .button-group {
   display: flex;
   gap: 10px;
 }
+
 .button-group button {
   flex: 1;
 }
+
 .tutorial {
   margin-top: 20px;
   padding: 15px;
@@ -117,66 +138,81 @@ button:hover {
   border-radius: 4px;
   margin-bottom: 10px;
 }
+
 .tutorial h2 {
   font-size: 1.5em;
   color: #f7c800;
   margin-top: 0;
 }
+
 .tutorial h3 {
   font-size: 1.2em;
   margin-bottom: 10px;
 }
+
 .tutorial ol {
   padding-left: 20px;
 }
+
 .tutorial code {
   background-color: #1e1e1e;
   padding: 2px 4px;
   border-radius: 3px;
 }
+
 .download-btn {
   background-color: #4caf50;
   margin-top: 10px;
   width: auto;
   display: inline-block;
 }
+
 .download-btn:hover {
   background-color: #45a049;
 }
+
 #download-container {
   text-align: right;
 }
+
 .checkbox-group {
   display: flex;
   gap: 20px;
 }
+
 .checkbox-group input[type="checkbox"] {
   width: auto;
   margin-right: 5px;
 }
+
 .format-options, .processing-options {
   margin-bottom: 15px;
   padding: 10px;
   background-color: #2d2d2d;
   border-radius: 4px;
 }
+
 .time-options {
   margin-bottom: 15px;
   padding: 10px;
   background-color: #2d2d2d;
   border-radius: 4px;
 }
+
 .timezone-select {
   margin-top: 10px;
 }
+
 .github-corner:hover .octo-arm {
   animation: octocat-wave 560ms ease-in-out;
 }
+
 @keyframes octocat-wave {
   0%, 100% { transform: rotate(0); }
   20%, 60% { transform: rotate(-25deg); }
   40%, 80% { transform: rotate(10deg); }
 }
+
 @media (max-width: 500px) {
   .github-corner:hover .octo-arm {
     animation: none;

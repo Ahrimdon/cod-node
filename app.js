@@ -10,11 +10,11 @@ app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 app.use(express.static(__dirname));
 
-// Add these imports at the top of server.js
 const fs = require('fs');
 
-// Add this after your existing constants
+// Initialize key replacements
 let keyReplacements = {};
+
 try {
   const replacementsPath = path.join(__dirname, "data", "replacements.json");
   if (fs.existsSync(replacementsPath)) {
@@ -30,48 +30,48 @@ try {
 
 const replaceJsonKeys = (obj) => {
     if (!obj || typeof obj !== 'object') return obj;
-    
+
     if (Array.isArray(obj)) {
       return obj.map(item => replaceJsonKeys(item));
     }
-    
+
     const newObj = {};
     Object.keys(obj).forEach(key => {
       // Replace key if it exists in replacements
       const newKey = keyReplacements[key] || key;
-      
+
       // DEBUG: Log replacements when they happen
       // if (newKey !== key) {
       //   console.log(`Replacing key "${key}" with "${newKey}"`);
       // }
-      
+
       // Also check if the value should be replaced (if it's a string)
       let value = obj[key];
       if (typeof value === 'string' && keyReplacements[value]) {
         value = keyReplacements[value];
         // console.log(`Replacing value "${obj[key]}" with "${value}"`);
       }
-      
+
       // Process value recursively if it's an object or array
       newObj[newKey] = replaceJsonKeys(value);
     });
-    
+
     return newObj;
   };
 
 // Utility regex function
 const sanitizeJsonOutput = (data) => {
     if (!data) return data;
-    
+
     // Convert to string to perform regex operations
     const jsonString = JSON.stringify(data);
-    
+
     // Define regex pattern that matches HTML entities
     const regexPattern = /&lt;span class=&quot;.*?&quot;&gt;|&lt;\/span&gt;|&quot;&gt;|mp-stat-items|kills-value|headshots-value|username|game-mode|kdr-value|accuracy-value|defends-value/g;
-    
+
     // Replace unwanted patterns
     const sanitizedString = jsonString.replace(regexPattern, '');
-    
+
     // Parse back to object
     try {
       return JSON.parse(sanitizedString);
@@ -85,17 +85,17 @@ const sanitizeJsonOutput = (data) => {
 const processJsonOutput = (data, options = { sanitize: true, replaceKeys: true }) => {
     // Create a deep copy of the data to avoid reference issues
     let processedData = JSON.parse(JSON.stringify(data));
-    
+
     // Apply sanitization if needed
     if (options.sanitize) {
       processedData = sanitizeJsonOutput(processedData);
     }
-    
+
     // Apply key replacement if needed - make sure this is correctly receiving the option
     if (options.replaceKeys) {
       processedData = replaceJsonKeys(processedData);
     }
-    
+
     return processedData;
   };
 
@@ -761,7 +761,7 @@ app.post("/api/search", async (req, res) => {
         // status: "success",
         data: processJsonOutput(data, { sanitize, replaceKeys }),
         timestamp: new Date().toISOString(),
-        link: "Stats pulled using codtracker.rimmyscorner.com",
+        // link: "Stats pulled using codtracker.rimmyscorner.com",
       });
     } catch (apiError) {
       return handleApiError(apiError, res);

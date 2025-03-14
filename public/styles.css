@@ -146,6 +146,20 @@ button:hover {
 #download-container {
   text-align: right;
 }
+.checkbox-group {
+  display: flex;
+  gap: 20px;
+}
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 5px;
+}
+.format-options, .processing-options {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #2d2d2d;
+  border-radius: 4px;
+}
 .time-options {
   margin-bottom: 15px;
   padding: 10px;

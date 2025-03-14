@@ -16,7 +16,7 @@ const fs = require('fs');
 // Add this after your existing constants
 let keyReplacements = {};
 try {
-  const replacementsPath = path.join(__dirname, 'replacements.json');
+  const replacementsPath = path.join(__dirname, "data", "replacements.json");
   if (fs.existsSync(replacementsPath)) {
     const replacementsContent = fs.readFileSync(replacementsPath, 'utf8');
     keyReplacements = JSON.parse(replacementsContent);
@@ -772,7 +772,7 @@ app.get("/health", (req, res) => {
 
 // Serve the main HTML file
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // Start the server

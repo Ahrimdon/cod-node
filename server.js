@@ -71,9 +71,20 @@ const sanitizeJsonOutput = (data) => {
   };
 
 // Combined function to sanitize and replace keys
-const processJsonOutput = (data) => {
-    const sanitized = sanitizeJsonOutput(data);
-    return replaceJsonKeys(sanitized);
+const processJsonOutput = (data, options = { sanitize: true, replace: true }) => {
+    let processedData = data;
+    
+    // Apply sanitization if needed
+    if (options.sanitize) {
+      processedData = sanitizeJsonOutput(processedData);
+    }
+    
+    // Apply key replacement if needed
+    if (options.replace) {
+      processedData = replaceJsonKeys(processedData);
+    }
+    
+    return processedData;
   };
 
 // Store active sessions to avoid repeated logins
@@ -326,7 +337,7 @@ app.post("/api/stats", async (req, res) => {
       console.log("Returning data to client");
       return res.json({
         //status: "success",
-        data: replaceJsonKeys(data),
+        data: processJsonOutput(data, { sanitize: false, replace: true }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -449,7 +460,7 @@ app.post("/api/matches", async (req, res) => {
 
       return res.json({
         //status: "success",
-        data: replaceJsonKeys(data),
+        data: processJsonOutput(data, { sanitize: false, replace: true }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -556,7 +567,7 @@ app.post("/api/matchInfo", async (req, res) => {
 
       return res.json({
         status: "success",
-        data: data,
+        data: processJsonOutput(data, { sanitize: false, replace: true }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -663,7 +674,7 @@ app.post("/api/user", async (req, res) => {
 
       return res.json({
         status: "success",
-        data: processJsonOutput(data),
+        data: processJsonOutput(data, { sanitize: true, replace: false }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -725,7 +736,7 @@ app.post("/api/search", async (req, res) => {
 
       return res.json({
         status: "success",
-        data: data,
+        data: processJsonOutput(data, { sanitize: false, replace: false }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {

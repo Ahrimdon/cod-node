@@ -40,13 +40,20 @@ const replaceJsonKeys = (obj) => {
       // Replace key if it exists in replacements
       const newKey = keyReplacements[key] || key;
       
-      // DEBUG: Log replacements when they happen (temporary for debugging)
+      // DEBUG: Log replacements when they happen
       if (newKey !== key) {
         console.log(`Replacing key "${key}" with "${newKey}"`);
       }
       
+      // Also check if the value should be replaced (if it's a string)
+      let value = obj[key];
+      if (typeof value === 'string' && keyReplacements[value]) {
+        value = keyReplacements[value];
+        console.log(`Replacing value "${obj[key]}" with "${value}"`);
+      }
+      
       // Process value recursively if it's an object or array
-      newObj[newKey] = replaceJsonKeys(obj[key]);
+      newObj[newKey] = replaceJsonKeys(value);
     });
     
     return newObj;
@@ -76,7 +83,8 @@ const sanitizeJsonOutput = (data) => {
 
 // Combined function to sanitize and replace keys
 const processJsonOutput = (data, options = { sanitize: true, replace: true }) => {
-    let processedData = data;
+    // Create a deep copy of the data to avoid reference issues
+    let processedData = JSON.parse(JSON.stringify(data));
     
     // Apply sanitization if needed
     if (options.sanitize) {
@@ -89,7 +97,7 @@ const processJsonOutput = (data, options = { sanitize: true, replace: true }) =>
     }
     
     return processedData;
-};
+  };
 
 // Store active sessions to avoid repeated logins
 const activeSessions = new Map();

@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const API = require("call-of-duty-api");
+const API = require("./src/js/index.js");
 const favicon = require('serve-favicon');
 const app = express();
 const port = process.env.PORT || 3513;

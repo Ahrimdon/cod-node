@@ -309,6 +309,7 @@
         setupDownloadButton();
         setupFormatSelector();
         setupProcessingOptions();
+        addSyncListeners();
       });
       
       // Tab switching logic
@@ -479,49 +480,56 @@
         });
       });
       
-      // Convert JSON to YAML
+      // Improved YAML conversion function
       function jsonToYAML(json) {
-        function indent(str, spaces) {
-          return str.split('\n').map((line, i) => (i === 0 ? line : ' '.repeat(spaces) + line)).join('\n');
-        }
-      
-        function formatValue(value, depth = 0) {
+        const INDENT_SIZE = 2;
+        
+        function formatValue(value, indentLevel = 0) {
+          const indent = ' '.repeat(indentLevel);
+          
           if (value === null) return 'null';
           if (value === undefined) return '';
           
-          switch (typeof value) {
-            case 'string':
-              // Check if string needs quotes (contains special chars)
-              if (/[:{}[\],&*#?|\-<>=!%@`]/.test(value) || value === '' || !isNaN(value)) {
-                return `"${value.replace(/"/g, '\\"')}"`;
-              }
-              return value;
-            case 'number':
-            case 'boolean':
-              return value.toString();
-            case 'object':
-              if (Array.isArray(value)) {
-                if (value.length === 0) return '[]';
-                let result = '\n';
-                for (const item of value) {
-                  result += indent(`- ${formatValue(item, depth + 2)}`, depth + 2) + '\n';
-                }
-                return result.slice(0, -1); // Remove last newline
-              } else {
-                if (Object.keys(value).length === 0) return '{}';
-                let result = '\n';
-                for (const [key, val] of Object.entries(value)) {
-                  result += indent(`${key}: ${formatValue(val, depth + 2)}`, depth + 2) + '\n';
-                }
-                return result.slice(0, -1); // Remove last newline
-              }
-            default:
-              return String(value);
+          if (typeof value === 'string') {
+            // Check if string needs quotes (contains special chars)
+            if (/[:{}[\],&*#?|\-<>=!%@`]/.test(value) || value === '' || !isNaN(value)) {
+              return `"${value.replace(/"/g, '\\"')}"`;
+            }
+            return value;
           }
+          
+          if (typeof value === 'number' || typeof value === 'boolean') {
+            return value.toString();
+          }
+          
+          if (Array.isArray(value)) {
+            if (value.length === 0) return '[]';
+            let result = '';
+            for (const item of value) {
+              result += `\n${indent}- ${formatValue(item, indentLevel + INDENT_SIZE).trimStart()}`;
+            }
+            return result;
+          }
+          
+          if (typeof value === 'object') {
+            if (Object.keys(value).length === 0) return '{}';
+            let result = '';
+            for (const [key, val] of Object.entries(value)) {
+              const formattedValue = formatValue(val, indentLevel + INDENT_SIZE);
+              // If the formatted value is a multi-line value (array or object), add a line break
+              if (formattedValue.includes('\n')) {
+                result += `\n${indent}${key}:${formattedValue}`;
+              } else {
+                result += `\n${indent}${key}: ${formattedValue}`;
+              }
+            }
+            return result;
+          }
+          
+          return String(value);
         }
-      
-        const yamlString = formatValue(json);
-        return yamlString.startsWith('\n') ? yamlString.slice(1) : yamlString;
+        
+        return formatValue(json, 0).substring(1); // Remove first newline
       }
       
       // Common fetch function
@@ -712,6 +720,44 @@
           // Clean up
           document.body.removeChild(a);
         });
+      }
+      // Function to synchronize username across tabs
+      function syncUsernames() {
+        const mainUsername = document.getElementById("username").value.trim();
+        
+        // Only sync if there's a value
+        if (mainUsername) {
+          document.getElementById("matchUsername").value = mainUsername;
+          document.getElementById("userUsername").value = mainUsername;
+          document.getElementById("searchUsername").value = mainUsername;
+        }
+        
+        // Also sync platform across tabs when it changes
+        const mainPlatform = document.getElementById("platform").value;
+        document.getElementById("matchPlatform").value = mainPlatform;
+        document.getElementById("userPlatform").value = mainPlatform;
+        document.getElementById("searchPlatform").value = mainPlatform;
+      }
+
+      // Add these event listeners to the DOMContentLoaded function
+      function addSyncListeners() {
+        // Add change listeners for username sync
+        document.getElementById("username").addEventListener("change", syncUsernames);
+        document.getElementById("matchUsername").addEventListener("change", function() {
+          document.getElementById("username").value = this.value;
+          syncUsernames();
+        });
+        document.getElementById("userUsername").addEventListener("change", function() {
+          document.getElementById("username").value = this.value;
+          syncUsernames();
+        });
+        document.getElementById("searchUsername").addEventListener("change", function() {
+          document.getElementById("username").value = this.value;
+          syncUsernames();
+        });
+        
+        // Add change listeners for platform sync
+        document.getElementById("platform").addEventListener("change", syncUsernames);
       }
     </script>
     <a href="https://github.com/Ahrimdon/codtracker-js" target="_blank" class="github-corner" aria-label="View source on GitHub" title="View Source Code on GitHub">

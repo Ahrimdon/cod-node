@@ -82,7 +82,7 @@ const sanitizeJsonOutput = (data) => {
   };
 
 // Combined function to sanitize and replace keys
-const processJsonOutput = (data, options = { sanitize: true, replace: true }) => {
+const processJsonOutput = (data, options = { sanitize: true, replaceKeys: true }) => {
     // Create a deep copy of the data to avoid reference issues
     let processedData = JSON.parse(JSON.stringify(data));
     
@@ -91,8 +91,8 @@ const processJsonOutput = (data, options = { sanitize: true, replace: true }) =>
       processedData = sanitizeJsonOutput(processedData);
     }
     
-    // Apply key replacement if needed
-    if (options.replace) {
+    // Apply key replacement if needed - make sure this is correctly receiving the option
+    if (options.replaceKeys) {
       processedData = replaceJsonKeys(processedData);
     }
     

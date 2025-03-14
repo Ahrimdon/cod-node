@@ -347,9 +347,12 @@ app.post("/api/stats", async (req, res) => {
       }
 
       console.log("Returning data to client");
+
+      const { sanitize, replaceKeys } = req.body;
+
       return res.json({
         // status: "success",
-        data: processJsonOutput(data, { sanitize: false, replace: true }),
+        data: processJsonOutput(data, { sanitize, replaceKeys }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -470,9 +473,11 @@ app.post("/api/matches", async (req, res) => {
           });
       }
 
+      const { sanitize, replaceKeys } = req.body;
+
       return res.json({
         // status: "success",
-        data: processJsonOutput(data, { sanitize: false, replace: true }),
+        data: processJsonOutput(data, { sanitize, replaceKeys }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -577,9 +582,11 @@ app.post("/api/matchInfo", async (req, res) => {
           });
       }
 
+      const { sanitize, replaceKeys } = req.body;
+
       return res.json({
         // status: "success",
-        data: processJsonOutput(data, { sanitize: false, replace: true }),
+        data: processJsonOutput(data, { sanitize, replaceKeys }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -684,9 +691,11 @@ app.post("/api/user", async (req, res) => {
           });
       }
 
+      const { sanitize, replaceKeys } = req.body;
+
       return res.json({
         // status: "success",
-        data: processJsonOutput(data, { sanitize: true, replace: false }),
+        data: processJsonOutput(data, { sanitize, replaceKeys }),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -746,9 +755,11 @@ app.post("/api/search", async (req, res) => {
         API.Misc.search(username, platform)
       );
 
+      const { sanitize, replaceKeys } = req.body;
+
       return res.json({
         // status: "success",
-        data: processJsonOutput(data, { sanitize: false, replace: true }),
+        data: processJsonOutput(data, { sanitize, replaceKeys }),
         timestamp: new Date().toISOString(),
         link: "Stats pulled using codtracker.rimmyscorner.com",
       });

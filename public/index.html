@@ -255,118 +255,226 @@
 
     <script>
       let tutorialDismissed = false;
-
-      // Tab switching logic
-      document.querySelectorAll(".tab").forEach((tab) => {
-        tab.addEventListener("click", () => {
-          document
-            .querySelectorAll(".tab")
-            .forEach((t) => t.classList.remove("active"));
-          document
-            .querySelectorAll(".tab-content")
-            .forEach((c) => c.classList.remove("active"));
+      let currentData = null;
+      let outputFormat = "json";
       
-          tab.classList.add("active");
-          const tabId = tab.getAttribute("data-tab");
-          document.getElementById(`${tabId}-tab`).classList.add("active");
-        });
+      // Initialize once DOM is loaded
+      document.addEventListener("DOMContentLoaded", function() {
+        initTabSwitching();
+        addEnterKeyListeners();
+        setupDownloadButton();
+        setupFormatSelector();
+        setupProcessingOptions();
       });
+      
+      // Tab switching logic
+      function initTabSwitching() {
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab")
+              .forEach((t) => t.classList.remove("active"));
+            document
+              .querySelectorAll(".tab-content")
+              .forEach((c) => c.classList.remove("active"));
+        
+            tab.classList.add("active");
+            const tabId = tab.getAttribute("data-tab");
+            document.getElementById(`${tabId}-tab`).classList.add("active");
+          });
+        });
+      }
+      
+      // Setup processing options (sanitize/replace)
+      function setupProcessingOptions() {
+        document.getElementById("sanitizeOption").addEventListener("change", function() {
+          if (currentData) {
+            displayResults(currentData);
+          }
+        });
+        
+        document.getElementById("replaceKeysOption").addEventListener("change", function() {
+          if (currentData) {
+            displayResults(currentData);
+          }
+        });
+      }
+      
+      // Setup format selector
+      function setupFormatSelector() {
+        document.getElementById("outputFormat").addEventListener("change", function() {
+          outputFormat = this.value;
+          if (currentData) {
+            displayResults(currentData);
+          }
+        });
+      }
       
       // Fetch stats (original functionality enhanced)
       document.getElementById("fetchStats").addEventListener("click", async () => {
-          const username = document.getElementById("username").value.trim();
-          const ssoToken = document.getElementById("ssoToken").value.trim();
-          const platform = document.getElementById("platform").value;
-          const game = document.getElementById("game").value;
-          const apiCall = document.getElementById("apiCall").value;
+        const username = document.getElementById("username").value.trim();
+        const ssoToken = document.getElementById("ssoToken").value.trim();
+        const platform = document.getElementById("platform").value;
+        const game = document.getElementById("game").value;
+        const apiCall = document.getElementById("apiCall").value;
       
-          await fetchData("/api/stats", {
-            username,
-            ssoToken,
-            platform,
-            game,
-            apiCall,
-          });
+        const sanitize = document.getElementById("sanitizeOption").checked;
+        const replaceKeys = document.getElementById("replaceKeysOption").checked;
+      
+        await fetchData("/api/stats", {
+          username,
+          ssoToken,
+          platform,
+          game,
+          apiCall,
+          sanitize,
+          replaceKeys
         });
+      });
       
       // Fetch match history
       document.getElementById("fetchMatches").addEventListener("click", async () => {
-          const username = document.getElementById("matchUsername").value.trim();
-          const ssoToken = document.getElementById("ssoToken").value.trim();
-          const platform = document.getElementById("matchPlatform").value;
-          const game = document.getElementById("matchGame").value;
+        const username = document.getElementById("matchUsername").value.trim();
+        const ssoToken = document.getElementById("ssoToken").value.trim();
+        const platform = document.getElementById("matchPlatform").value;
+        const game = document.getElementById("matchGame").value;
+        
+        const sanitize = document.getElementById("sanitizeOption").checked;
+        const replaceKeys = document.getElementById("replaceKeysOption").checked;
       
-          await fetchData("/api/matches", {
-            username,
-            ssoToken,
-            platform,
-            game,
-          });
+        await fetchData("/api/matches", {
+          username,
+          ssoToken,
+          platform,
+          game,
+          sanitize,
+          replaceKeys
         });
+      });
       
       // Fetch match details
       document.getElementById("fetchMatchInfo").addEventListener("click", async () => {
-          const matchId = document.getElementById("matchId").value.trim();
-          const ssoToken = document.getElementById("ssoToken").value.trim();
-          const platform = document.getElementById("matchPlatform").value;
-          const game = document.getElementById("matchGame").value;
+        const matchId = document.getElementById("matchId").value.trim();
+        const ssoToken = document.getElementById("ssoToken").value.trim();
+        const platform = document.getElementById("matchPlatform").value;
+        const game = document.getElementById("matchGame").value;
+        
+        const sanitize = document.getElementById("sanitizeOption").checked;
+        const replaceKeys = document.getElementById("replaceKeysOption").checked;
       
-          if (!matchId) {
-            displayError("Match ID is required");
-            return;
-          }
+        if (!matchId) {
+          displayError("Match ID is required");
+          return;
+        }
       
-          await fetchData("/api/matchInfo", {
-            matchId,
-            ssoToken,
-            platform,
-            game,
-          });
+        await fetchData("/api/matchInfo", {
+          matchId,
+          ssoToken,
+          platform,
+          game,
+          sanitize,
+          replaceKeys
         });
+      });
       
       // Fetch user info
       document.getElementById("fetchUserInfo").addEventListener("click", async () => {
-          const username = document.getElementById("userUsername").value.trim();
-          const ssoToken = document.getElementById("ssoToken").value.trim();
-          const platform = document.getElementById("userPlatform").value;
-          const userCall = document.getElementById("userCall").value;
+        const username = document.getElementById("userUsername").value.trim();
+        const ssoToken = document.getElementById("ssoToken").value.trim();
+        const platform = document.getElementById("userPlatform").value;
+        const userCall = document.getElementById("userCall").value;
+        
+        const sanitize = document.getElementById("sanitizeOption").checked;
+        const replaceKeys = document.getElementById("replaceKeysOption").checked;
       
-          // For event feed and identities, username is not required
-          if (
-            !username &&
-            userCall !== "eventFeed" &&
-            userCall !== "friendFeed" &&
-            userCall !== "identities"
-          ) {
-            displayError("Username is required for this API call");
-            return;
-          }
+        // For event feed and identities, username is not required
+        if (
+          !username &&
+          userCall !== "eventFeed" &&
+          userCall !== "friendFeed" &&
+          userCall !== "identities"
+        ) {
+          displayError("Username is required for this API call");
+          return;
+        }
       
-          await fetchData("/api/user", {
-            username,
-            ssoToken,
-            platform,
-            userCall,
-          });
+        await fetchData("/api/user", {
+          username,
+          ssoToken,
+          platform,
+          userCall,
+          sanitize,
+          replaceKeys
         });
+      });
       
       // Fuzzy search
       document.getElementById("fuzzySearch").addEventListener("click", async () => {
-          const username = document.getElementById("searchUsername").value.trim();
-          const ssoToken = document.getElementById("ssoToken").value.trim();
-          const platform = document.getElementById("searchPlatform").value;
+        const username = document.getElementById("searchUsername").value.trim();
+        const ssoToken = document.getElementById("ssoToken").value.trim();
+        const platform = document.getElementById("searchPlatform").value;
+        
+        const sanitize = document.getElementById("sanitizeOption").checked;
+        const replaceKeys = document.getElementById("replaceKeysOption").checked;
       
-          if (!username) {
-            displayError("Username is required for search");
-            return;
-          }
+        if (!username) {
+          displayError("Username is required for search");
+          return;
+        }
       
-          await fetchData("/api/search", {
-            username,
-            ssoToken,
-            platform,
-          });
+        await fetchData("/api/search", {
+          username,
+          ssoToken,
+          platform,
+          sanitize,
+          replaceKeys
         });
+      });
+      
+      // Convert JSON to YAML
+      function jsonToYAML(json) {
+        function indent(str, spaces) {
+          return str.split('\n').map((line, i) => (i === 0 ? line : ' '.repeat(spaces) + line)).join('\n');
+        }
+      
+        function formatValue(value, depth = 0) {
+          if (value === null) return 'null';
+          if (value === undefined) return '';
+          
+          switch (typeof value) {
+            case 'string':
+              // Check if string needs quotes (contains special chars)
+              if (/[:{}[\],&*#?|\-<>=!%@`]/.test(value) || value === '' || !isNaN(value)) {
+                return `"${value.replace(/"/g, '\\"')}"`;
+              }
+              return value;
+            case 'number':
+            case 'boolean':
+              return value.toString();
+            case 'object':
+              if (Array.isArray(value)) {
+                if (value.length === 0) return '[]';
+                let result = '\n';
+                for (const item of value) {
+                  result += indent(`- ${formatValue(item, depth + 2)}`, depth + 2) + '\n';
+                }
+                return result.slice(0, -1); // Remove last newline
+              } else {
+                if (Object.keys(value).length === 0) return '{}';
+                let result = '\n';
+                for (const [key, val] of Object.entries(value)) {
+                  result += indent(`${key}: ${formatValue(val, depth + 2)}`, depth + 2) + '\n';
+                }
+                return result.slice(0, -1); // Remove last newline
+              }
+            default:
+              return String(value);
+          }
+        }
+      
+        const yamlString = formatValue(json);
+        return yamlString.startsWith('\n') ? yamlString.slice(1) : yamlString;
+      }
       
       // Common fetch function
       async function fetchData(endpoint, requestData) {
@@ -414,9 +522,8 @@
           } else if (data.status === "error") {
             displayError(data.message || "An error occurred");
           } else {
-            resultsElement.textContent = JSON.stringify(data, null, 2);
-            resultsElement.style.display = "block";
-            document.getElementById("download-container").style.display = "block";
+            currentData = data;
+            displayResults(data);
           }
         } catch (error) {
           displayError(
@@ -426,6 +533,28 @@
         } finally {
           loadingElement.style.display = "none";
         }
+      }
+      
+      // Function to display results
+      function displayResults(data) {
+        const resultsElement = document.getElementById("results");
+        const downloadContainer = document.getElementById("download-container");
+        
+        let displayData = data;
+        
+        // Format the data
+        let formattedData = '';
+        if (outputFormat === 'yaml') {
+          formattedData = jsonToYAML(displayData);
+          document.getElementById("downloadJson").textContent = "Download YAML Data";
+        } else {
+          formattedData = JSON.stringify(displayData, null, 2);
+          document.getElementById("downloadJson").textContent = "Download JSON Data";
+        }
+        
+        resultsElement.textContent = formattedData;
+        resultsElement.style.display = "block";
+        downloadContainer.style.display = "block";
       }
       
       // Helper function to display errors
@@ -514,8 +643,9 @@
             return;
           }
           
-          // Create a Blob with the JSON data
-          const blob = new Blob([jsonData], { type: "application/json" });
+          // Create a Blob with the data
+          const contentType = outputFormat === 'yaml' ? 'text/yaml' : 'application/json';
+          const blob = new Blob([jsonData], { type: contentType });
           
           // Create a temporary link element
           const a = document.createElement("a");
@@ -524,7 +654,8 @@
           // Generate a filename with timestamp
           const date = new Date();
           const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}-${String(date.getMinutes()).padStart(2, '0')}`;
-          a.download = `cod_stats_${timestamp}.json`;
+          const extension = outputFormat === 'yaml' ? 'yaml' : 'json';
+          a.download = `cod_stats_${timestamp}.${extension}`;
           
           // Trigger download
           document.body.appendChild(a);
@@ -534,12 +665,6 @@
           document.body.removeChild(a);
         });
       }
-      
-      // Call these functions after DOM is loaded
-      document.addEventListener("DOMContentLoaded", function() {
-        addEnterKeyListeners();
-        setupDownloadButton();
-      });
     </script>
     <a href="https://github.com/Ahrimdon/codtracker-js" target="_blank" class="github-corner" aria-label="View source on GitHub" title="View Source Code on GitHub">
       <svg width="40" height="40" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; right: 0; border: 0;">

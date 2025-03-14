@@ -146,6 +146,15 @@ button:hover {
 #download-container {
   text-align: right;
 }
+.time-options {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #2d2d2d;
+  border-radius: 4px;
+}
+.timezone-select {
+  margin-top: 10px;
+}
 .github-corner:hover .octo-arm {
   animation: octocat-wave 560ms ease-in-out;
 }

@@ -61,6 +61,51 @@
         </div>
       </div>
 
+      <!-- Add this after the processing-options div in index.html -->
+      <div class="time-options">
+        <div class="form-group">
+          <label>Time Display Options:</label>
+          <div class="checkbox-group">
+            <div>
+              <input type="checkbox" id="convertTimeOption">
+              <label for="convertTimeOption">Convert Epoch Times</label>
+            </div>
+          </div>
+          <div class="timezone-select" style="margin-top: 10px;">
+            <label for="timezoneSelect">Timezone:</label>
+            <select id="timezoneSelect" disabled>
+              <option value="UTC">UTC</option>
+              <option value="GMT-12">GMT-12</option>
+              <option value="GMT-11">GMT-11</option>
+              <option value="GMT-10">GMT-10 (Hawaii)</option>
+              <option value="GMT-9">GMT-9 (Alaska)</option>
+              <option value="GMT-8">GMT-8 (Pacific)</option>
+              <option value="GMT-7">GMT-7 (Mountain)</option>
+              <option value="GMT-6">GMT-6 (Central)</option>
+              <option value="GMT-5">GMT-5 (Eastern)</option>
+              <option value="GMT-4">GMT-4 (Atlantic)</option>
+              <option value="GMT-3">GMT-3 (Brazil)</option>
+              <option value="GMT-2">GMT-2</option>
+              <option value="GMT-1">GMT-1</option>
+              <option value="GMT+0">GMT+0 (London)</option>
+              <option value="GMT+1">GMT+1 (Paris)</option>
+              <option value="GMT+2">GMT+2 (Athens)</option>
+              <option value="GMT+3">GMT+3 (Moscow)</option>
+              <option value="GMT+4">GMT+4 (Dubai)</option>
+              <option value="GMT+5">GMT+5 (Karachi)</option>
+              <option value="GMT+5:30">GMT+5:30 (India)</option>
+              <option value="GMT+6">GMT+6 (Dhaka)</option>
+              <option value="GMT+7">GMT+7 (Bangkok)</option>
+              <option value="GMT+8">GMT+8 (Singapore)</option>
+              <option value="GMT+9">GMT+9 (Tokyo)</option>
+              <option value="GMT+10">GMT+10 (Sydney)</option>
+              <option value="GMT+11">GMT+11</option>
+              <option value="GMT+12">GMT+12 (Auckland)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <!-- Common fields for all tabs -->
       <div class="form-group">
         <label for="ssoToken">SSO Token:</label>
@@ -309,6 +354,7 @@
         setupDownloadButton();
         setupFormatSelector();
         setupProcessingOptions();
+        setupTimeOptions();
         addSyncListeners();
       });
       
@@ -683,6 +729,113 @@
             document.getElementById("fuzzySearch").click();
             break;
         }
+      }
+
+      // Function to convert epoch time to human-readable format
+      function formatEpochTime(epoch, timezone) {
+        if (!epoch) return epoch;
+        
+        // Check if epoch is in milliseconds (13 digits) or seconds (10 digits)
+        const epochNumber = parseInt(epoch);
+        if (isNaN(epochNumber)) return epoch;
+        
+        // Convert to milliseconds if needed
+        const epochMs = epochNumber.toString().length <= 10 ? epochNumber * 1000 : epochNumber;
+        
+        // Parse the timezone offset
+        let offset = 0;
+        if (timezone !== 'UTC') {
+          const match = timezone.match(/GMT([+-])(\d+)(?::(\d+))?/);
+          if (match) {
+            const sign = match[1] === '+' ? 1 : -1;
+            const hours = parseInt(match[2]);
+            const minutes = match[3] ? parseInt(match[3]) : 0;
+            offset = sign * (hours * 60 + minutes) * 60 * 1000;
+          }
+        }
+        
+        // Create a date object and adjust for timezone
+        const date = new Date(epochMs + offset);
+        
+        // Format the date
+        return date.toUTCString().replace('GMT', timezone);
+      }
+
+      // Function to recursively process timestamps in the data
+      function processTimestamps(data, timezone, keysToConvert = ['utcStartSeconds', 'utcEndSeconds', 'timestamp', 'startTime', 'endTime']) {
+        if (!data || typeof data !== 'object') return data;
+        
+        if (Array.isArray(data)) {
+          return data.map(item => processTimestamps(item, timezone, keysToConvert));
+        }
+        
+        const result = {};
+        for (const [key, value] of Object.entries(data)) {
+          if (keysToConvert.includes(key) && typeof value === 'number') {
+            result[key] = formatEpochTime(value, timezone);
+          } else if (typeof value === 'object' && value !== null) {
+            result[key] = processTimestamps(value, timezone, keysToConvert);
+          } else {
+            result[key] = value;
+          }
+        }
+        
+        return result;
+      }
+
+      // Add this to your document.addEventListener("DOMContentLoaded", function() {...}) block
+      function setupTimeOptions() {
+        const convertTimeCheckbox = document.getElementById('convertTimeOption');
+        const timezoneSelect = document.getElementById('timezoneSelect');
+        
+        convertTimeCheckbox.addEventListener('change', function() {
+          timezoneSelect.disabled = !this.checked;
+          
+          if (currentData) {
+            displayResults(currentData); // Refresh the display
+          }
+        });
+        
+        timezoneSelect.addEventListener('change', function() {
+          if (currentData) {
+            displayResults(currentData); // Refresh the display
+          }
+        });
+      }
+
+      // Add this to your initialization code
+      document.addEventListener("DOMContentLoaded", function() {
+        // ... existing initialization code
+        setupTimeOptions();
+      });
+
+      // Update the displayResults function to handle time conversion
+      function displayResults(data) {
+        const resultsElement = document.getElementById("results");
+        const downloadContainer = document.getElementById("download-container");
+        
+        let displayData = { ...data };
+        
+        // Apply time conversion if enabled
+        const convertTime = document.getElementById('convertTimeOption').checked;
+        if (convertTime) {
+          const timezone = document.getElementById('timezoneSelect').value;
+          displayData = processTimestamps(displayData, timezone);
+        }
+        
+        // Format the data
+        let formattedData = '';
+        if (outputFormat === 'yaml') {
+          formattedData = jsonToYAML(displayData);
+          document.getElementById("downloadJson").textContent = "Download YAML Data";
+        } else {
+          formattedData = JSON.stringify(displayData, null, 2);
+          document.getElementById("downloadJson").textContent = "Download JSON Data";
+        }
+        
+        resultsElement.textContent = formattedData;
+        resultsElement.style.display = "block";
+        downloadContainer.style.display = "block";
       }
       
       // Download Button

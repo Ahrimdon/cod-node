@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Call of Duty Stats Tracker</title>
-    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <link rel="stylesheet" type="text/css" href="./public/styles.css">
   </head>
   <body>
     <div class="container">
@@ -254,6 +254,8 @@
     </div>
 
     <script>
+      let tutorialDismissed = false;
+
       // Tab switching logic
       document.querySelectorAll(".tab").forEach((tab) => {
         tab.addEventListener("click", () => {
@@ -263,13 +265,13 @@
           document
             .querySelectorAll(".tab-content")
             .forEach((c) => c.classList.remove("active"));
-
+      
           tab.classList.add("active");
           const tabId = tab.getAttribute("data-tab");
           document.getElementById(`${tabId}-tab`).classList.add("active");
         });
       });
-
+      
       // Fetch stats (original functionality enhanced)
       document.getElementById("fetchStats").addEventListener("click", async () => {
           const username = document.getElementById("username").value.trim();
@@ -277,7 +279,7 @@
           const platform = document.getElementById("platform").value;
           const game = document.getElementById("game").value;
           const apiCall = document.getElementById("apiCall").value;
-
+      
           await fetchData("/api/stats", {
             username,
             ssoToken,
@@ -286,13 +288,14 @@
             apiCall,
           });
         });
-
+      
       // Fetch match history
-      document.getElementById("fetchMatches").addEventListener("click", async () => {const username = document.getElementById("matchUsername").value.trim();
+      document.getElementById("fetchMatches").addEventListener("click", async () => {
+          const username = document.getElementById("matchUsername").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("matchPlatform").value;
           const game = document.getElementById("matchGame").value;
-
+      
           await fetchData("/api/matches", {
             username,
             ssoToken,
@@ -300,19 +303,19 @@
             game,
           });
         });
-
+      
       // Fetch match details
       document.getElementById("fetchMatchInfo").addEventListener("click", async () => {
           const matchId = document.getElementById("matchId").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("matchPlatform").value;
           const game = document.getElementById("matchGame").value;
-
+      
           if (!matchId) {
             displayError("Match ID is required");
             return;
           }
-
+      
           await fetchData("/api/matchInfo", {
             matchId,
             ssoToken,
@@ -320,14 +323,14 @@
             game,
           });
         });
-
+      
       // Fetch user info
       document.getElementById("fetchUserInfo").addEventListener("click", async () => {
           const username = document.getElementById("userUsername").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("userPlatform").value;
           const userCall = document.getElementById("userCall").value;
-
+      
           // For event feed and identities, username is not required
           if (
             !username &&
@@ -338,7 +341,7 @@
             displayError("Username is required for this API call");
             return;
           }
-
+      
           await fetchData("/api/user", {
             username,
             ssoToken,
@@ -346,49 +349,52 @@
             userCall,
           });
         });
-
+      
       // Fuzzy search
       document.getElementById("fuzzySearch").addEventListener("click", async () => {
           const username = document.getElementById("searchUsername").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("searchPlatform").value;
-
+      
           if (!username) {
             displayError("Username is required for search");
             return;
           }
-
+      
           await fetchData("/api/search", {
             username,
             ssoToken,
             platform,
           });
         });
-
+      
       // Common fetch function
       async function fetchData(endpoint, requestData) {
         const errorElement = document.getElementById("error");
         const loadingElement = document.getElementById("loading");
         const resultsElement = document.getElementById("results");
-        const tutorialElement = document.getElementById("tutorial");
+        
+        // Get all tutorial elements
+        const tutorialElements = document.querySelectorAll(".tutorial");
       
         // Reset display
         errorElement.textContent = "";
         resultsElement.style.display = "none";
         loadingElement.style.display = "block";
         
-        // Hide tutorial when loading
-        if (tutorialElement) {
-          tutorialElement.style.display = "none";
+        // Mark tutorial as dismissed when any button is clicked
+        if (!tutorialDismissed) {
+          tutorialDismissed = true;
+          // Hide all tutorial elements
+          tutorialElements.forEach(element => {
+            element.style.display = "none";
+          });
         }
       
         // Check for SSO Token
         if (!requestData.ssoToken) {
           errorElement.textContent = "SSO Token is required";
           loadingElement.style.display = "none";
-          if (tutorialElement) {
-            tutorialElement.style.display = "none"; // Show tutorial again on error
-          }
           return;
         }
       
@@ -405,14 +411,8 @@
       
           if (data.error) {
             displayError(data.error);
-            if (tutorialElement) {
-              tutorialElement.style.display = "none"; // Show tutorial again on error
-            }
           } else if (data.status === "error") {
             displayError(data.message || "An error occurred");
-            if (tutorialElement) {
-              tutorialElement.style.display = "none"; // Show tutorial again on error
-            }
           } else {
             resultsElement.textContent = JSON.stringify(data, null, 2);
             resultsElement.style.display = "block";
@@ -423,19 +423,15 @@
             "An error occurred while fetching data. Please try again."
           );
           console.error("Error:", error);
-          if (tutorialElement) {
-            tutorialElement.style.display = "none"; 
-          }
         } finally {
           loadingElement.style.display = "none";
         }
       }
-
+      
       // Helper function to display errors
       function displayError(message) {
         const errorElement = document.getElementById("error");
         const loadingElement = document.getElementById("loading");
-        const tutorialElement = document.getElementById("tutorial");
         const resultsElement = document.getElementById("results");
       
         errorElement.textContent = message;
@@ -445,12 +441,14 @@
         resultsElement.style.display = "none";
         resultsElement.textContent = "";
         
-        // Hide tutorial on error
-        if (tutorialElement) {
-          tutorialElement.style.display = "none";
+        // Keep tutorial hidden if previously dismissed
+        if (tutorialDismissed) {
+          document.querySelectorAll(".tutorial").forEach(element => {
+            element.style.display = "none";
+          });
         }
       }
-
+      
       function addEnterKeyListeners() {
         document.getElementById("ssoToken").addEventListener("keypress", function(event) {
           if (event.key === "Enter") {
@@ -502,11 +500,6 @@
         }
       }
       
-      // Call this function after DOM is loaded
-      document.addEventListener("DOMContentLoaded", function() {
-        addEnterKeyListeners();
-      });
-
       // Download Button
       function setupDownloadButton() {
         const downloadBtn = document.getElementById("downloadJson");
@@ -541,8 +534,8 @@
           document.body.removeChild(a);
         });
       }
-
-      // Call this after DOM is loaded
+      
+      // Call these functions after DOM is loaded
       document.addEventListener("DOMContentLoaded", function() {
         addEnterKeyListeners();
         setupDownloadButton();

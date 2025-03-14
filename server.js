@@ -10,6 +10,72 @@ app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 app.use(express.static(__dirname));
 
+// Add these imports at the top of server.js
+const fs = require('fs');
+
+// Add this after your existing constants
+let keyReplacements = {};
+try {
+  const replacementsPath = path.join(__dirname, 'replacements.json');
+  if (fs.existsSync(replacementsPath)) {
+    const replacementsContent = fs.readFileSync(replacementsPath, 'utf8');
+    keyReplacements = JSON.parse(replacementsContent);
+    console.log("Replacements loaded successfully");
+  } else {
+    console.log("replacements.json not found, key replacement disabled");
+  }
+} catch (error) {
+  console.error("Error loading replacements file:", error);
+}
+
+// Function to recursively replace keys in objects
+const replaceJsonKeys = (obj) => {
+  if (!obj || typeof obj !== 'object') return obj;
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => replaceJsonKeys(item));
+  }
+  
+  const newObj = {};
+  Object.keys(obj).forEach(key => {
+    // Replace key if it exists in replacements
+    const newKey = keyReplacements[key] || key;
+    
+    // Process value recursively if it's an object or array
+    newObj[newKey] = replaceJsonKeys(obj[key]);
+  });
+  
+  return newObj;
+};
+
+// Utility regex function
+const sanitizeJsonOutput = (data) => {
+    if (!data) return data;
+    
+    // Convert to string to perform regex operations
+    const jsonString = JSON.stringify(data);
+    
+    // Define regex pattern that matches HTML entities
+    const regexPattern = /&lt;span class=&quot;.*?&quot;&gt;|&lt;\/span&gt;|&quot;&gt;|mp-stat-items|kills-value|headshots-value|username|game-mode|kdr-value|accuracy-value|defends-value/g;
+    
+    // Replace unwanted patterns
+    const sanitizedString = jsonString.replace(regexPattern, '');
+    
+    // Parse back to object
+    try {
+      return JSON.parse(sanitizedString);
+    } catch (e) {
+      console.error("Error parsing sanitized JSON:", e);
+      return data; // Return original data if parsing fails
+    }
+  };
+
+// Combined function to sanitize and replace keys
+const processJsonOutput = (data) => {
+    const sanitized = sanitizeJsonOutput(data);
+    return replaceJsonKeys(sanitized);
+  };
+
 // Store active sessions to avoid repeated logins
 const activeSessions = new Map();
 
@@ -259,8 +325,8 @@ app.post("/api/stats", async (req, res) => {
 
       console.log("Returning data to client");
       return res.json({
-        status: "success",
-        data: data,
+        //status: "success",
+        data: replaceJsonKeys(data),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -382,8 +448,8 @@ app.post("/api/matches", async (req, res) => {
       }
 
       return res.json({
-        status: "success",
-        data: data,
+        //status: "success",
+        data: replaceJsonKeys(data),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {
@@ -597,7 +663,7 @@ app.post("/api/user", async (req, res) => {
 
       return res.json({
         status: "success",
-        data: data,
+        data: processJsonOutput(data),
         timestamp: new Date().toISOString(),
       });
     } catch (apiError) {

@@ -2,13 +2,17 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const API = require("call-of-duty-api");
+const favicon = require('serve-favicon');
 const app = express();
-const port = process.env.PORT || 3512;
+const port = process.env.PORT || 3513;
 
 // Middleware
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'src/images')));
+app.use(favicon(path.join(__dirname, 'src', 'images', 'favicon.ico')));
 
 const fs = require('fs');
 
@@ -98,6 +102,47 @@ const processJsonOutput = (data, options = { sanitize: true, replaceKeys: true }
 
     return processedData;
   };
+
+// Improved token management with auto-refresh
+const tokenManager = {
+  tokens: new Map(),
+  
+  async getValidToken(ssoToken) {
+    // Check if we have a stored token and if it's still valid
+    const storedToken = this.tokens.get(ssoToken);
+    const currentTime = Date.now();
+    
+    if (storedToken && (currentTime - storedToken.timestamp < 1800000)) { // 30 minutes expiry
+      console.log("Using cached token");
+      return storedToken.token;
+    }
+    
+    // We need to login and get a new token
+    try {
+      console.log("Authenticating with new SSO token");
+      const loginResult = await Promise.race([
+        API.login(ssoToken),
+        timeoutPromise(10000), // 10 second timeout
+      ]);
+      
+      // Store the new token with timestamp
+      this.tokens.set(ssoToken, {
+        token: loginResult,
+        timestamp: currentTime
+      });
+      
+      console.log("Authentication successful");
+      return loginResult;
+    } catch (error) {
+      console.error("Authentication failed:", error);
+      throw new Error("Failed to authenticate with SSO token");
+    }
+  },
+  
+  invalidateToken(ssoToken) {
+    this.tokens.delete(ssoToken);
+  }
+};
 
 // Store active sessions to avoid repeated logins
 const activeSessions = new Map();

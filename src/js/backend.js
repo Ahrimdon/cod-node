@@ -239,40 +239,53 @@ async function fetchData(endpoint, requestData) {
   const loadingElement = document.getElementById("loading");
   const resultsElement = document.getElementById("results");
 
-  // Get all tutorial elements
-  const tutorialElements = document.querySelectorAll(".tutorial");
-
   // Reset display
   errorElement.textContent = "";
   resultsElement.style.display = "none";
   loadingElement.style.display = "block";
-
-  // Mark tutorial as dismissed when any button is clicked
+  
+  // Hide tutorial if not already dismissed
   if (!tutorialDismissed) {
     tutorialDismissed = true;
-    // Hide all tutorial elements
-    tutorialElements.forEach(element => {
+    document.querySelectorAll(".tutorial").forEach(element => {
       element.style.display = "none";
     });
   }
 
-  // Check for SSO Token
+  // Validate request data
   if (!requestData.ssoToken) {
-    errorElement.textContent = "SSO Token is required";
+    displayError("SSO Token is required");
     loadingElement.style.display = "none";
     return;
   }
 
   try {
+    // Set up the request with a timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(requestData),
+      signal: controller.signal
     });
 
+    clearTimeout(timeoutId);
+
+    // Handle non-JSON responses
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("Server returned non-JSON response");
+    }
+
     const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || `Error: ${response.status}`);
+    }
 
     if (data.error) {
       displayError(data.error);
@@ -283,10 +296,14 @@ async function fetchData(endpoint, requestData) {
       displayResults(data);
     }
   } catch (error) {
-    displayError(
-      "An error occurred while fetching data. Please try again."
-    );
-    console.error("Error:", error);
+    if (error.name === 'AbortError') {
+      displayError("Request timed out. Please try again.");
+    } else {
+      displayError(
+        `Error: ${error.message || "An error occurred while fetching data."}`
+      );
+      console.error("Fetch error:", error);
+    }
   } finally {
     loadingElement.style.display = "none";
   }

@@ -192,14 +192,18 @@
       // Setup processing options (sanitize/replace)
       function setupProcessingOptions() {
         document.getElementById("sanitizeOption").addEventListener("change", function() {
-          if (currentData) {
-            displayResults(currentData);
+          if (currentRawData) {
+            // Re-fetch with new options
+            const activeTab = document.querySelector(".tab.active").getAttribute("data-tab");
+            triggerActiveTabButton();
           }
         });
         
         document.getElementById("replaceKeysOption").addEventListener("change", function() {
-          if (currentData) {
-            displayResults(currentData);
+          if (currentRawData) {
+            // Re-fetch with new options
+            const activeTab = document.querySelector(".tab.active").getAttribute("data-tab");
+            triggerActiveTabButton();
           }
         });
       }

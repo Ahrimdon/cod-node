@@ -28,25 +28,29 @@ try {
   console.error("Error loading replacements file:", error);
 }
 
-// Function to recursively replace keys in objects
 const replaceJsonKeys = (obj) => {
-  if (!obj || typeof obj !== 'object') return obj;
-  
-  if (Array.isArray(obj)) {
-    return obj.map(item => replaceJsonKeys(item));
-  }
-  
-  const newObj = {};
-  Object.keys(obj).forEach(key => {
-    // Replace key if it exists in replacements
-    const newKey = keyReplacements[key] || key;
+    if (!obj || typeof obj !== 'object') return obj;
     
-    // Process value recursively if it's an object or array
-    newObj[newKey] = replaceJsonKeys(obj[key]);
-  });
-  
-  return newObj;
-};
+    if (Array.isArray(obj)) {
+      return obj.map(item => replaceJsonKeys(item));
+    }
+    
+    const newObj = {};
+    Object.keys(obj).forEach(key => {
+      // Replace key if it exists in replacements
+      const newKey = keyReplacements[key] || key;
+      
+      // DEBUG: Log replacements when they happen (temporary for debugging)
+      if (newKey !== key) {
+        console.log(`Replacing key "${key}" with "${newKey}"`);
+      }
+      
+      // Process value recursively if it's an object or array
+      newObj[newKey] = replaceJsonKeys(obj[key]);
+    });
+    
+    return newObj;
+  };
 
 // Utility regex function
 const sanitizeJsonOutput = (data) => {
@@ -85,7 +89,7 @@ const processJsonOutput = (data, options = { sanitize: true, replace: true }) =>
     }
     
     return processedData;
-  };
+};
 
 // Store active sessions to avoid repeated logins
 const activeSessions = new Map();

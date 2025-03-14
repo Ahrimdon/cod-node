@@ -586,7 +586,7 @@
         
         // Get all tutorial elements
         const tutorialElements = document.querySelectorAll(".tutorial");
-      
+
         // Reset display
         errorElement.textContent = "";
         resultsElement.style.display = "none";
@@ -600,14 +600,14 @@
             element.style.display = "none";
           });
         }
-      
+
         // Check for SSO Token
         if (!requestData.ssoToken) {
           errorElement.textContent = "SSO Token is required";
           loadingElement.style.display = "none";
           return;
         }
-      
+
         try {
           const response = await fetch(endpoint, {
             method: "POST",
@@ -616,9 +616,9 @@
             },
             body: JSON.stringify(requestData),
           });
-      
+
           const data = await response.json();
-      
+
           if (data.error) {
             displayError(data.error);
           } else if (data.status === "error") {
@@ -637,12 +637,19 @@
         }
       }
       
-      // Function to display results
+      // Update the displayResults function to handle time conversion
       function displayResults(data) {
         const resultsElement = document.getElementById("results");
         const downloadContainer = document.getElementById("download-container");
         
+        // Apply time conversion if enabled
+        const convertTime = document.getElementById('convertTimeOption').checked;
         let displayData = data;
+        
+        if (convertTime) {
+          const timezone = document.getElementById('timezoneSelect').value;
+          displayData = processTimestamps(JSON.parse(JSON.stringify(data)), timezone);
+        }
         
         // Format the data
         let formattedData = '';
@@ -801,41 +808,6 @@
             displayResults(currentData); // Refresh the display
           }
         });
-      }
-
-      // Add this to your initialization code
-      document.addEventListener("DOMContentLoaded", function() {
-        // ... existing initialization code
-        setupTimeOptions();
-      });
-
-      // Update the displayResults function to handle time conversion
-      function displayResults(data) {
-        const resultsElement = document.getElementById("results");
-        const downloadContainer = document.getElementById("download-container");
-        
-        let displayData = { ...data };
-        
-        // Apply time conversion if enabled
-        const convertTime = document.getElementById('convertTimeOption').checked;
-        if (convertTime) {
-          const timezone = document.getElementById('timezoneSelect').value;
-          displayData = processTimestamps(displayData, timezone);
-        }
-        
-        // Format the data
-        let formattedData = '';
-        if (outputFormat === 'yaml') {
-          formattedData = jsonToYAML(displayData);
-          document.getElementById("downloadJson").textContent = "Download YAML Data";
-        } else {
-          formattedData = JSON.stringify(displayData, null, 2);
-          document.getElementById("downloadJson").textContent = "Download JSON Data";
-        }
-        
-        resultsElement.textContent = formattedData;
-        resultsElement.style.display = "block";
-        downloadContainer.style.display = "block";
       }
       
       // Download Button

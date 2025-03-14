@@ -4,144 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Call of Duty Stats Tracker</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #121212;
-        color: #ffffff;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .container {
-        background-color: #1e1e1e;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      }
-      h1 {
-        text-align: center;
-        color: #f7c800;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-      input,
-      select {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #333;
-        border-radius: 4px;
-        background-color: #2d2d2d;
-        color: #ffffff;
-        box-sizing: border-box;
-      }
-      button {
-        background-color: #f7c800;
-        color: #000000;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        display: block;
-        width: 100%;
-        margin-top: 10px;
-      }
-      button:hover {
-        background-color: #e0b800;
-      }
-      #results {
-        margin-top: 20px;
-        background-color: #2d2d2d;
-        border-radius: 4px;
-        padding: 15px;
-        white-space: pre-wrap;
-        overflow-x: auto;
-        display: none;
-      }
-      .error {
-        color: #ff6b6b;
-        margin-top: 10px;
-        text-align: center;
-      }
-      .loading {
-        text-align: center;
-        margin-top: 20px;
-        display: none;
-      }
-      .api-section {
-        border-top: 1px solid #333;
-        margin-top: 20px;
-        padding-top: 15px;
-      }
-      .conditional-field {
-        display: none;
-      }
-      .tabs {
-        display: flex;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #333;
-      }
-      .tab {
-        padding: 10px 15px;
-        cursor: pointer;
-        background-color: #2d2d2d;
-        border-radius: 4px 4px 0 0;
-        margin-right: 5px;
-      }
-      .tab.active {
-        background-color: #f7c800;
-        color: #000000;
-        font-weight: bold;
-      }
-      .tab-content {
-        display: none;
-      }
-      .tab-content.active {
-        display: block;
-      }
-      .small-text {
-        font-size: 0.8em;
-        color: #aaa;
-      }
-      .button-group {
-        display: flex;
-        gap: 10px;
-      }
-      .button-group button {
-        flex: 1;
-      }
-      .tutorial {
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #2d2d2d;
-        border-radius: 4px;
-        margin-bottom: 10px;
-      }
-      .tutorial h2 {
-        font-size: 1.5em;
-        color: #f7c800;
-        margin-top: 0;
-      }
-      .tutorial h3 {
-        font-size: 1.2em;
-        margin-bottom: 10px;
-      }
-      .tutorial ol {
-        padding-left: 20px;
-      }
-      .tutorial code {
-        background-color: #1e1e1e;
-        padding: 2px 4px;
-        border-radius: 3px;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
   </head>
   <body>
     <div class="container">
@@ -164,13 +27,11 @@
       <div class="tab-content active" id="stats-tab">
         <div class="form-group">
           <label for="username"
-            >Username (e.g., Ahrimdon or Ahrimdon#1234567):</label
-          >
+            >Username (e.g., Ahrimdon or Ahrimdon#1234567):</label>
           <input
             type="text"
             id="username"
-            placeholder="Enter your Call of Duty username"
-          />
+            placeholder="Enter your Call of Duty username"/>
         </div>
 
         <div class="form-group">
@@ -387,6 +248,9 @@
       <div id="error" class="error"></div>
       <div id="loading" class="loading">Loading data...</div>
       <pre id="results"></pre>
+      <div id="download-container" style="display: none; margin-top: 10px;">
+        <button id="downloadJson" class="download-btn">Download JSON Data</button>
+      </div>
     </div>
 
     <script>
@@ -407,9 +271,7 @@
       });
 
       // Fetch stats (original functionality enhanced)
-      document
-        .getElementById("fetchStats")
-        .addEventListener("click", async () => {
+      document.getElementById("fetchStats").addEventListener("click", async () => {
           const username = document.getElementById("username").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("platform").value;
@@ -426,12 +288,7 @@
         });
 
       // Fetch match history
-      document
-        .getElementById("fetchMatches")
-        .addEventListener("click", async () => {
-          const username = document
-            .getElementById("matchUsername")
-            .value.trim();
+      document.getElementById("fetchMatches").addEventListener("click", async () => {const username = document.getElementById("matchUsername").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("matchPlatform").value;
           const game = document.getElementById("matchGame").value;
@@ -445,9 +302,7 @@
         });
 
       // Fetch match details
-      document
-        .getElementById("fetchMatchInfo")
-        .addEventListener("click", async () => {
+      document.getElementById("fetchMatchInfo").addEventListener("click", async () => {
           const matchId = document.getElementById("matchId").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("matchPlatform").value;
@@ -467,9 +322,7 @@
         });
 
       // Fetch user info
-      document
-        .getElementById("fetchUserInfo")
-        .addEventListener("click", async () => {
+      document.getElementById("fetchUserInfo").addEventListener("click", async () => {
           const username = document.getElementById("userUsername").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("userPlatform").value;
@@ -495,12 +348,8 @@
         });
 
       // Fuzzy search
-      document
-        .getElementById("fuzzySearch")
-        .addEventListener("click", async () => {
-          const username = document
-            .getElementById("searchUsername")
-            .value.trim();
+      document.getElementById("fuzzySearch").addEventListener("click", async () => {
+          const username = document.getElementById("searchUsername").value.trim();
           const ssoToken = document.getElementById("ssoToken").value.trim();
           const platform = document.getElementById("searchPlatform").value;
 
@@ -521,19 +370,28 @@
         const errorElement = document.getElementById("error");
         const loadingElement = document.getElementById("loading");
         const resultsElement = document.getElementById("results");
-
+        const tutorialElement = document.getElementById("tutorial");
+      
         // Reset display
         errorElement.textContent = "";
         resultsElement.style.display = "none";
         loadingElement.style.display = "block";
-
+        
+        // Hide tutorial when loading
+        if (tutorialElement) {
+          tutorialElement.style.display = "none";
+        }
+      
         // Check for SSO Token
         if (!requestData.ssoToken) {
           errorElement.textContent = "SSO Token is required";
           loadingElement.style.display = "none";
+          if (tutorialElement) {
+            tutorialElement.style.display = "none"; // Show tutorial again on error
+          }
           return;
         }
-
+      
         try {
           const response = await fetch(endpoint, {
             method: "POST",
@@ -542,22 +400,32 @@
             },
             body: JSON.stringify(requestData),
           });
-
+      
           const data = await response.json();
-
+      
           if (data.error) {
             displayError(data.error);
+            if (tutorialElement) {
+              tutorialElement.style.display = "none"; // Show tutorial again on error
+            }
           } else if (data.status === "error") {
             displayError(data.message || "An error occurred");
+            if (tutorialElement) {
+              tutorialElement.style.display = "none"; // Show tutorial again on error
+            }
           } else {
             resultsElement.textContent = JSON.stringify(data, null, 2);
             resultsElement.style.display = "block";
+            document.getElementById("download-container").style.display = "block";
           }
         } catch (error) {
           displayError(
             "An error occurred while fetching data. Please try again."
           );
           console.error("Error:", error);
+          if (tutorialElement) {
+            tutorialElement.style.display = "none"; 
+          }
         } finally {
           loadingElement.style.display = "none";
         }
@@ -567,10 +435,118 @@
       function displayError(message) {
         const errorElement = document.getElementById("error");
         const loadingElement = document.getElementById("loading");
-
+        const tutorialElement = document.getElementById("tutorial");
+        const resultsElement = document.getElementById("results");
+      
         errorElement.textContent = message;
         loadingElement.style.display = "none";
+        
+        // Clear previous results to ensure they can be redrawn
+        resultsElement.style.display = "none";
+        resultsElement.textContent = "";
+        
+        // Hide tutorial on error
+        if (tutorialElement) {
+          tutorialElement.style.display = "none";
+        }
       }
+
+      function addEnterKeyListeners() {
+        document.getElementById("ssoToken").addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            triggerActiveTabButton();
+          }
+        });
+        document.getElementById("username").addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            triggerActiveTabButton();
+          }
+        });
+        document.getElementById("matchUsername").addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            document.getElementById("fetchMatches").click();
+          }
+        });
+        document.getElementById("matchId").addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            document.getElementById("fetchMatchInfo").click();
+          }
+        });
+        document.getElementById("userUsername").addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            document.getElementById("fetchUserInfo").click();
+          }
+        });
+        document.getElementById("searchUsername").addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            document.getElementById("fuzzySearch").click();
+          }
+        });
+      }
+      
+      function triggerActiveTabButton() {
+        const activeTab = document.querySelector(".tab.active").getAttribute("data-tab");
+        switch (activeTab) {
+          case "stats":
+            document.getElementById("fetchStats").click();
+            break;
+          case "matches":
+            document.getElementById("fetchMatches").click();
+            break;
+          case "user":
+            document.getElementById("fetchUserInfo").click();
+            break;
+          case "other":
+            document.getElementById("fuzzySearch").click();
+            break;
+        }
+      }
+      
+      // Call this function after DOM is loaded
+      document.addEventListener("DOMContentLoaded", function() {
+        addEnterKeyListeners();
+      });
+
+      // Download Button
+      function setupDownloadButton() {
+        const downloadBtn = document.getElementById("downloadJson");
+        if (!downloadBtn) return;
+        
+        downloadBtn.addEventListener("click", function() {
+          const resultsElement = document.getElementById("results");
+          const jsonData = resultsElement.textContent;
+          
+          if (!jsonData) {
+            alert("No data to download");
+            return;
+          }
+          
+          // Create a Blob with the JSON data
+          const blob = new Blob([jsonData], { type: "application/json" });
+          
+          // Create a temporary link element
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          
+          // Generate a filename with timestamp
+          const date = new Date();
+          const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}-${String(date.getMinutes()).padStart(2, '0')}`;
+          a.download = `cod_stats_${timestamp}.json`;
+          
+          // Trigger download
+          document.body.appendChild(a);
+          a.click();
+          
+          // Clean up
+          document.body.removeChild(a);
+        });
+      }
+
+      // Call this after DOM is loaded
+      document.addEventListener("DOMContentLoaded", function() {
+        addEnterKeyListeners();
+        setupDownloadButton();
+      });
     </script>
     <a href="https://github.com/Ahrimdon/codtracker-js" target="_blank" class="github-corner" aria-label="View source on GitHub" title="View Source Code on GitHub">
       <svg width="40" height="40" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; right: 0; border: 0;">
@@ -579,23 +555,5 @@
         <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
       </svg>
     </a>
-    <style>
-      .github-corner:hover .octo-arm {
-        animation: octocat-wave 560ms ease-in-out;
-      }
-      @keyframes octocat-wave {
-        0%, 100% { transform: rotate(0); }
-        20%, 60% { transform: rotate(-25deg); }
-        40%, 80% { transform: rotate(10deg); }
-      }
-      @media (max-width: 500px) {
-        .github-corner:hover .octo-arm {
-          animation: none;
-        }
-        .github-corner .octo-arm {
-          animation: octocat-wave 560ms ease-in-out;
-        }
-      }
-    </style>
   </body>
 </html>

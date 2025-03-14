@@ -20,7 +20,7 @@ try {
   if (fs.existsSync(replacementsPath)) {
     const replacementsContent = fs.readFileSync(replacementsPath, 'utf8');
     keyReplacements = JSON.parse(replacementsContent);
-    console.log("Replacements loaded successfully");
+    // console.log("Replacements loaded successfully");
   } else {
     console.log("replacements.json not found, key replacement disabled");
   }
@@ -41,15 +41,15 @@ const replaceJsonKeys = (obj) => {
       const newKey = keyReplacements[key] || key;
       
       // DEBUG: Log replacements when they happen
-      if (newKey !== key) {
-        console.log(`Replacing key "${key}" with "${newKey}"`);
-      }
+      // if (newKey !== key) {
+      //   console.log(`Replacing key "${key}" with "${newKey}"`);
+      // }
       
       // Also check if the value should be replaced (if it's a string)
       let value = obj[key];
       if (typeof value === 'string' && keyReplacements[value]) {
         value = keyReplacements[value];
-        console.log(`Replacing value "${obj[key]}" with "${value}"`);
+        // console.log(`Replacing value "${obj[key]}" with "${value}"`);
       }
       
       // Process value recursively if it's an object or array
@@ -348,7 +348,7 @@ app.post("/api/stats", async (req, res) => {
 
       console.log("Returning data to client");
       return res.json({
-        //status: "success",
+        // status: "success",
         data: processJsonOutput(data, { sanitize: false, replace: true }),
         timestamp: new Date().toISOString(),
       });
@@ -471,7 +471,7 @@ app.post("/api/matches", async (req, res) => {
       }
 
       return res.json({
-        //status: "success",
+        // status: "success",
         data: processJsonOutput(data, { sanitize: false, replace: true }),
         timestamp: new Date().toISOString(),
       });
@@ -578,7 +578,7 @@ app.post("/api/matchInfo", async (req, res) => {
       }
 
       return res.json({
-        status: "success",
+        // status: "success",
         data: processJsonOutput(data, { sanitize: false, replace: true }),
         timestamp: new Date().toISOString(),
       });
@@ -685,7 +685,7 @@ app.post("/api/user", async (req, res) => {
       }
 
       return res.json({
-        status: "success",
+        // status: "success",
         data: processJsonOutput(data, { sanitize: true, replace: false }),
         timestamp: new Date().toISOString(),
       });
@@ -747,9 +747,10 @@ app.post("/api/search", async (req, res) => {
       );
 
       return res.json({
-        status: "success",
-        data: processJsonOutput(data, { sanitize: false, replace: false }),
+        // status: "success",
+        data: processJsonOutput(data, { sanitize: false, replace: true }),
         timestamp: new Date().toISOString(),
+        link: "Stats pulled using codtracker.rimmyscorner.com",
       });
     } catch (apiError) {
       return handleApiError(apiError, res);

@@ -289,6 +289,8 @@
     "uno": "PC",
     "psn": "Playstation Network",
     "xbl": "Xbox Live",
+    "steam": "Steam",
+    "battle": "BattleNET",
     "mw": "Modern Warfare",
     "cw": "Cold War",
     "mp_cartel": "Cartel",
